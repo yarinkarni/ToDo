@@ -64,37 +64,50 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function TabToDo() {
+const TabToDo = ({ setAllTasks, allTasks }) => {
   const classes = useStyles();
   const theme = useTheme();
   const [value, setValue] = useState(0);
-  const [AllTasks, setAllTasks] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [dense] = useState(false);
+  const [AllTasksTemp, setAllTasksTemp] = useState([]);
+
   const handleUpdate = e => {
-    setIsLoaded(false)
-    const saved = e;
-    const requestOptions = {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ TaskDate: e.TaskDate, TaskText: e.TaskText, TaskDone: !e.TaskDone, TaskID: e.TaskID })
-    };
-    fetch('http://localhost:60812/UpdateTasks', requestOptions)
-      .then(response => response.json())
-      .then(data => console.log(data));
-    setIsLoaded(true)
+    async function fetchApi() {
+      const saved = e;
+      const requestOptions = {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ TaskDate: e.TaskDate, TaskText: e.TaskText, TaskDone: !e.TaskDone, TaskID: e.TaskID })
+      };
+      await fetch('http://localhost:60812/UpdateTasks', requestOptions)
+        .then(response => response.json())
+        .then(data => {
+          console.log(data, 'dataUpdate')
+          console.log(e, 'e')
+          console.log([...AllTasksTemp.filter(task => task.TaskID != e.TaskID).map(task1 => task1), data], 'filter')
+          setAllTasks([...AllTasksTemp.filter(task => task.TaskID != e.TaskID).map(task1 => task1), data])
+          setAllTasksTemp([...AllTasksTemp.filter(task => task.TaskID != e.TaskID).map(task1 => task1), data])
+          // [...AllTasksTemp.filter(task => task.TaskID != e.TaskID).map(task1 => task1), data]
+        });
+    } fetchApi()
   }
   const handleDelete = e => {
-    const saved = e;
-    fetch(url + 'DeleteTasks/' + e,
-      {
-        method: 'DELETE'
-      }
-    )
-      .then(m => m.json())
-      .then(() => AllTasks.filter(AllTasks => AllTasks.TaskID === saved.target))
-      .then(() => console.log(AllTasks));
-
+    async function fetchApi() {
+      const saved = e;
+      await fetch(url + 'DeleteTasks/' + e,
+        {
+          method: 'DELETE'
+        }
+      )
+        .then(m => m.json())
+        .then(() => {
+          setAllTasks(AllTasksTemp.filter(task => task.TaskID != e).map(task1 => task1))
+          setAllTasksTemp(AllTasksTemp.filter(task => task.TaskID != e).map(task1 => task1))
+          AllTasksTemp.filter(task => task.TaskID != e).map(task1 => task1)
+        })
+        .then(() => console.log(AllTasksTemp));
+    } fetchApi()
   };
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -104,24 +117,28 @@ export default function TabToDo() {
     setValue(index);
   };
   useEffect(() => {
-    fetch(url + 'GetAllTasks',
-      {
-        method: 'GET',
-      })
-      .then(res => res.json())
-      .then(
-        (result) => {
-          setIsLoaded(true);
-          setAllTasks(result);
-        },
-      )
-  }, [])
+    async function fetchApi() {
+      let r = await fetch(url + 'GetAllTasks',
+        {
+          method: 'GET',
+        })
+        .then(res => res.json())
+        .then(
+          (result) => {
+            setIsLoaded(true);
+            setAllTasks(oldTasks => ({ ...oldTasks, result }))
+            setAllTasksTemp(result)
+          },
+        )
+    } fetchApi()
+  }, [allTasks])
   if (!isLoaded) {
     return <div>Loading...</div>;
   }
   else {
     return (
       <div className={classes.root}>
+        {console.log(AllTasksTemp, 'AllTasksTemp')}
         <AppBar position="static" color="default">
           <Tabs
             value={value}
@@ -141,7 +158,7 @@ export default function TabToDo() {
           <TabPanel value={value} index={0} dir={theme.direction}>
             <Grid >
               <List dense={dense} >
-                {AllTasks.map(item => (
+                {AllTasksTemp.map(item => (
                   !item.TaskDone ?
                     <ListItem button
                       onClick={() => handleUpdate(item)}
@@ -168,7 +185,7 @@ export default function TabToDo() {
           </TabPanel>
           <TabPanel value={value} index={1} dir={theme.direction}>
             <List dense={dense} >
-              {AllTasks.map(item => (
+              {AllTasksTemp.map(item => (
                 item.TaskDone ?
                   <ListItem button
                     onClick={() => handleUpdate(item)}
@@ -198,3 +215,4 @@ export default function TabToDo() {
     );
   }
 }
+export default TabToDo;

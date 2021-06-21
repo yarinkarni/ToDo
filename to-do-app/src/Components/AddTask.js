@@ -1,32 +1,35 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 
-const AddTask = () => {
+const AddTask = ({ setAllTasks }) => {
   const [showModal, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const [TaskText, setTaskText] = useState(null);
   const saveTask = () => {
-    const requestOptions = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ TaskText: TaskText, TaskDone: false, TaskDate: new Date() })
-    };
-    fetch('http://localhost:60812/AddTask', requestOptions)
-      .then(response => response.json())
-      .then(data => console.log(data, 'data'));
-    handleClose()
+    async function fetchApi() {
+      const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ TaskText: TaskText, TaskDone: false, TaskDate: new Date() })
+      };
+      await fetch('http://localhost:60812/AddTask', requestOptions)
+        .then(response => response.json())
+        .then(data => {
+          console.log(data, 'data')
+          console.log(oldState, data, 'state')
+          // setAllTasks(oldState => ({ ...oldState, data }))
+        });
+      handleClose()
+    }
+    fetchApi()
   }
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-
-  });
   return (
     <>
       <div
+
         className="d-flex align-items-center justify-content-center"
-        style={{ height: "100vh" }}
-      >
+        style={{ height: "100vh" }}>
         <Button variant="primary" onClick={handleShow}>
           Add Task
         </Button>

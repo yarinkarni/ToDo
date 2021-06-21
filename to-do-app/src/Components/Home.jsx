@@ -25,7 +25,9 @@ export default function Home() {
   const classes = useStyles();
   const [AllTasks, setAllTasks] = useState([]);
   const [TaskIDToDelete, setTaskIDToDelete] = useState(0);
-  
+  useEffect(() => {
+    
+  }, [AllTasks])
   return (
     <div className="App">
       <nav className="bg-info fixed-top" style={{ height: '7%' }}>
@@ -35,8 +37,11 @@ export default function Home() {
       <div className={classes.root} style={{ alignItems: 'center', justifyContent: 'center', paddingTop: '5%' }}>
         <Paper elevation={20} style={{ paddingBottom: '38%', width: '70%' }} >
           <h3 className="m-3 d-flex justify-content-center">All Tasks</h3>
-          <Tab />
-          <AddTask />
+          {console.log(AllTasks, 'AllTasksHome1')}
+          <Tab setAllTasks={setAllTasks} />
+          <AddTask setAllTasks={setAllTasks} />
+          {console.log(AllTasks, 'AllTasksHome2')}
+
         </Paper>
       </div>
     </div>
