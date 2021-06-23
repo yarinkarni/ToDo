@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 
 const AddTask = ({ setAllTasks }) => {
@@ -6,7 +6,7 @@ const AddTask = ({ setAllTasks }) => {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const [TaskText, setTaskText] = useState(null);
-  const saveTask = () => {
+  const saveTask = e => {
     async function fetchApi() {
       const requestOptions = {
         method: 'POST',
@@ -16,18 +16,16 @@ const AddTask = ({ setAllTasks }) => {
       await fetch('http://localhost:60812/AddTask', requestOptions)
         .then(response => response.json())
         .then(data => {
-          console.log(data, 'data')
-          console.log(oldState, data, 'state')
-          // setAllTasks(oldState => ({ ...oldState, data }))
+          setAllTasks(data)
         });
       handleClose()
     }
     fetchApi()
   }
+
   return (
     <>
       <div
-
         className="d-flex align-items-center justify-content-center"
         style={{ height: "100vh" }}>
         <Button variant="primary" onClick={handleShow}>

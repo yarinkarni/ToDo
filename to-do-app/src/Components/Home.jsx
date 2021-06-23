@@ -1,10 +1,25 @@
-import React, { Component, useEffect, useState } from 'react'
-// import Api from './Api.jsx'
+import React, { useState, useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Tab from '../Tabs/Tab.jsx'
 import AddTask from './AddTask'
 export default function Home() {
+  let url = 'http://localhost:60812/'
+  const [AllTasks, setAllTasks] = useState([]);
+  useEffect(() => {
+    async function fetchApi() {
+      await fetch(url + 'GetAllTasks',
+        {
+          method: 'GET',
+        })
+        .then(res => res.json())
+        .then(
+          (result) => {
+            setAllTasks(result)
+          },
+        )
+    } fetchApi()
+  }, [AllTasks])
   const useStyles = makeStyles((theme) => ({
     root: {
       display: 'flex',
@@ -23,11 +38,6 @@ export default function Home() {
     },
   }));
   const classes = useStyles();
-  const [AllTasks, setAllTasks] = useState([]);
-  const [TaskIDToDelete, setTaskIDToDelete] = useState(0);
-  useEffect(() => {
-    
-  }, [AllTasks])
   return (
     <div className="App">
       <nav className="bg-info fixed-top" style={{ height: '7%' }}>
@@ -37,11 +47,8 @@ export default function Home() {
       <div className={classes.root} style={{ alignItems: 'center', justifyContent: 'center', paddingTop: '5%' }}>
         <Paper elevation={20} style={{ paddingBottom: '38%', width: '70%' }} >
           <h3 className="m-3 d-flex justify-content-center">All Tasks</h3>
-          {console.log(AllTasks, 'AllTasksHome1')}
-          <Tab setAllTasks={setAllTasks} />
+          <Tab AllTasks={AllTasks} />
           <AddTask setAllTasks={setAllTasks} />
-          {console.log(AllTasks, 'AllTasksHome2')}
-
         </Paper>
       </div>
     </div>

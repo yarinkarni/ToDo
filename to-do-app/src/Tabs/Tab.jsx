@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import SwipeableViews from 'react-swipeable-views';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
@@ -8,8 +8,6 @@ import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
-// import Api from '../Components/Api'
-
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
@@ -19,8 +17,6 @@ import Avatar from '@material-ui/core/Avatar';
 import IconButton from '@material-ui/core/IconButton';
 import FolderIcon from '@material-ui/icons/Folder';
 import DeleteIcon from '@material-ui/icons/Delete';
-
-
 let url = 'http://localhost:60812/'
 
 function TabPanel(props) {
@@ -42,20 +38,17 @@ function TabPanel(props) {
     </div>
   );
 }
-
 TabPanel.propTypes = {
   children: PropTypes.node,
   index: PropTypes.any.isRequired,
   value: PropTypes.any.isRequired,
 };
-
 function a11yProps(index) {
   return {
     id: `full-width-tab-${index}`,
     'aria-controls': `full-width-tabpanel-${index}`,
   };
 }
-
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.background.paper,
@@ -63,18 +56,13 @@ const useStyles = makeStyles((theme) => ({
     height: '100%'
   },
 }));
-
-const TabToDo = ({ setAllTasks, allTasks }) => {
+const TabToDo = ({ AllTasks }) => {
   const classes = useStyles();
   const theme = useTheme();
   const [value, setValue] = useState(0);
-  const [isLoaded, setIsLoaded] = useState(false);
   const [dense] = useState(false);
-  const [AllTasksTemp, setAllTasksTemp] = useState([]);
-
   const handleUpdate = e => {
     async function fetchApi() {
-      const saved = e;
       const requestOptions = {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -83,18 +71,12 @@ const TabToDo = ({ setAllTasks, allTasks }) => {
       await fetch('http://localhost:60812/UpdateTasks', requestOptions)
         .then(response => response.json())
         .then(data => {
-          console.log(data, 'dataUpdate')
-          console.log(e, 'e')
-          console.log([...AllTasksTemp.filter(task => task.TaskID != e.TaskID).map(task1 => task1), data], 'filter')
-          setAllTasks([...AllTasksTemp.filter(task => task.TaskID != e.TaskID).map(task1 => task1), data])
-          setAllTasksTemp([...AllTasksTemp.filter(task => task.TaskID != e.TaskID).map(task1 => task1), data])
-          // [...AllTasksTemp.filter(task => task.TaskID != e.TaskID).map(task1 => task1), data]
+          console.log(data)
         });
     } fetchApi()
   }
   const handleDelete = e => {
     async function fetchApi() {
-      const saved = e;
       await fetch(url + 'DeleteTasks/' + e,
         {
           method: 'DELETE'
@@ -102,91 +84,39 @@ const TabToDo = ({ setAllTasks, allTasks }) => {
       )
         .then(m => m.json())
         .then(() => {
-          setAllTasks(AllTasksTemp.filter(task => task.TaskID != e).map(task1 => task1))
-          setAllTasksTemp(AllTasksTemp.filter(task => task.TaskID != e).map(task1 => task1))
-          AllTasksTemp.filter(task => task.TaskID != e).map(task1 => task1)
+          console.log(AllTasks)
         })
-        .then(() => console.log(AllTasksTemp));
     } fetchApi()
   };
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
-
   const handleChangeIndex = (index) => {
     setValue(index);
   };
-  useEffect(() => {
-    async function fetchApi() {
-      let r = await fetch(url + 'GetAllTasks',
-        {
-          method: 'GET',
-        })
-        .then(res => res.json())
-        .then(
-          (result) => {
-            setIsLoaded(true);
-            setAllTasks(oldTasks => ({ ...oldTasks, result }))
-            setAllTasksTemp(result)
-          },
-        )
-    } fetchApi()
-  }, [allTasks])
-  if (!isLoaded) {
-    return <div>Loading...</div>;
-  }
-  else {
-    return (
-      <div className={classes.root}>
-        {console.log(AllTasksTemp, 'AllTasksTemp')}
-        <AppBar position="static" color="default">
-          <Tabs
-            value={value}
-            onChange={handleChange}
-            indicatorColor="primary"
-            textColor="primary"
-            variant="fullWidth"
-            aria-label="full width tabs example">
-            <Tab label="undone" {...a11yProps(0)} />
-            <Tab label="done" {...a11yProps(1)} />
-          </Tabs>
-        </AppBar>
-        <SwipeableViews
-          axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
-          index={value}
-          onChangeIndex={handleChangeIndex}>
-          <TabPanel value={value} index={0} dir={theme.direction}>
-            <Grid >
-              <List dense={dense} >
-                {AllTasksTemp.map(item => (
-                  !item.TaskDone ?
-                    <ListItem button
-                      onClick={() => handleUpdate(item)}
-                      key={item.TaskID} >
-                      <ListItemAvatar>
-                        <Avatar>
-                          <FolderIcon />
-                        </Avatar>
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={item.TaskText}
-                      />
-                      <ListItemSecondaryAction>
-                        <IconButton edge="end" aria-label="delete"
-                          onClick={() => handleDelete(item.TaskID)}>
-                          <DeleteIcon />
-                        </IconButton>
-                      </ListItemSecondaryAction>
-                    </ListItem>
-                    : null
-                ))}
-              </List>
-            </Grid>
-          </TabPanel>
-          <TabPanel value={value} index={1} dir={theme.direction}>
+  return (
+    <div className={classes.root}>
+      <AppBar position="static" color="default">
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          indicatorColor="primary"
+          textColor="primary"
+          variant="fullWidth"
+          aria-label="full width tabs example">
+          <Tab label="undone" {...a11yProps(0)} />
+          <Tab label="done" {...a11yProps(1)} />
+        </Tabs>
+      </AppBar>
+      <SwipeableViews
+        axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+        index={value}
+        onChangeIndex={handleChangeIndex}>
+        <TabPanel value={value} index={0} dir={theme.direction}>
+          <Grid >
             <List dense={dense} >
-              {AllTasksTemp.map(item => (
-                item.TaskDone ?
+              {AllTasks.map(item => (
+                !item.TaskDone ?
                   <ListItem button
                     onClick={() => handleUpdate(item)}
                     key={item.TaskID} >
@@ -195,13 +125,14 @@ const TabToDo = ({ setAllTasks, allTasks }) => {
                         <FolderIcon />
                       </Avatar>
                     </ListItemAvatar>
-                    <ListItemText style={{ textDecoration: 'line-through' }}
+                    <ListItemText
                       primary={item.TaskText}
                     />
                     <ListItemSecondaryAction>
                       <IconButton edge="end" aria-label="delete"
-                        onClick={() => handleDelete(item.TaskID)}
-                      >
+                        onClick={() => {
+                          handleDelete(item.TaskID)
+                        }}>
                         <DeleteIcon />
                       </IconButton>
                     </ListItemSecondaryAction>
@@ -209,10 +140,37 @@ const TabToDo = ({ setAllTasks, allTasks }) => {
                   : null
               ))}
             </List>
-          </TabPanel>
-        </SwipeableViews>
-      </div>
-    );
-  }
+          </Grid>
+        </TabPanel>
+        <TabPanel value={value} index={1} dir={theme.direction}>
+          <List dense={dense} >
+            {AllTasks.map(item => (
+              item.TaskDone ?
+                <ListItem button
+                  onClick={() => handleUpdate(item)}
+                  key={item.TaskID} >
+                  <ListItemAvatar>
+                    <Avatar>
+                      <FolderIcon />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText style={{ textDecoration: 'line-through' }}
+                    primary={item.TaskText}
+                  />
+                  <ListItemSecondaryAction>
+                    <IconButton edge="end" aria-label="delete"
+                      onClick={() => handleDelete(item.TaskID)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                </ListItem>
+                : null
+            ))}
+          </List>
+        </TabPanel>
+      </SwipeableViews>
+    </div>
+  );
 }
 export default TabToDo;
