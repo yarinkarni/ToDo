@@ -1,28 +1,20 @@
 import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-
+import Api from './Api'
 const AddTask = ({ setAllTasks }) => {
   const [showModal, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const [TaskText, setTaskText] = useState(null);
-  const saveTask = e => {
-    async function fetchApi() {
-      const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ TaskText: TaskText, TaskDone: false, TaskDate: new Date() })
-      };
-      await fetch('http://localhost:60812/AddTask', requestOptions)
-        .then(response => response.json())
-        .then(data => {
-          setAllTasks(data)
-        });
-      handleClose()
+  const saveTask = () => {
+    let obj2Send = {
+      "TaskText": TaskText,
+      "TaskDone": false,
+      "TaskDate": new Date()
     }
-    fetchApi()
+    let res = Api.Api('AddTask', 'POST', obj2Send)
+    if (res) handleClose()
   }
-
   return (
     <>
       <div
@@ -43,8 +35,7 @@ const AddTask = ({ setAllTasks }) => {
               <Form.Control
                 type="TaskText"
                 placeholder="Enter Task Text"
-                onChange={e => setTaskText(e.target.value)}
-              />
+                onChange={e => setTaskText(e.target.value)} />
             </Form.Group>
           </Form>
         </Modal.Body>

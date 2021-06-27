@@ -3,23 +3,13 @@ import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Tab from '../Tabs/Tab.jsx'
 import AddTask from './AddTask'
+import Api from './Api'
 export default function Home() {
-  let url = 'http://localhost:60812/'
-  const [AllTasks, setAllTasks] = useState([]);
+  const [allTasks, setAllTasks] = useState([]);
   useEffect(() => {
-    async function fetchApi() {
-      await fetch(url + 'GetAllTasks',
-        {
-          method: 'GET',
-        })
-        .then(res => res.json())
-        .then(
-          (result) => {
-            setAllTasks(result)
-          },
-        )
-    } fetchApi()
-  }, [AllTasks])
+    Api.Api('GetAllTasks', 'GET')
+      .then(data => setAllTasks(data))
+  }, [allTasks])
   const useStyles = makeStyles((theme) => ({
     root: {
       display: 'flex',
@@ -47,7 +37,7 @@ export default function Home() {
       <div className={classes.root} style={{ alignItems: 'center', justifyContent: 'center', paddingTop: '5%' }}>
         <Paper elevation={20} style={{ paddingBottom: '38%', width: '70%' }} >
           <h3 className="m-3 d-flex justify-content-center">All Tasks</h3>
-          <Tab AllTasks={AllTasks} />
+          <Tab allTasks={allTasks} />
           <AddTask setAllTasks={setAllTasks} />
         </Paper>
       </div>
